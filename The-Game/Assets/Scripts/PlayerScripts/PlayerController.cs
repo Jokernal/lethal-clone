@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float walkSpeed = 3f;
+    [SerializeField] private float runSpeed = 6f;
     [SerializeField] private float mouseSense = 75f;
     [SerializeField] private Camera playerCam;
     [SerializeField] private CharacterController characterController;
@@ -52,12 +53,11 @@ public class PlayerController : MonoBehaviour
         moveDir = transform.right * moveX  + transform.forward * moveY;
 
         
+        if(Input.GetKey(KeyCode.LeftShift))
+        characterController.Move(moveDir * runSpeed * Time.deltaTime);
+        else
+        characterController.Move(moveDir * walkSpeed * Time.deltaTime);
 
-        characterController.Move(moveDir * Time.deltaTime);
-
-
-         
-        
     }
 
     
