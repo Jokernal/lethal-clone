@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float walkSpeed = 3f;
     [SerializeField] private float runSpeed = 6f;
-    [SerializeField] private float mouseSense = 75f;
+    [SerializeField] private float mouseSense = 1000f;
     [SerializeField] private Camera playerCam;
     [SerializeField] private CharacterController characterController;
     [SerializeField] private Transform playerTransform;
@@ -21,10 +21,9 @@ public class PlayerController : MonoBehaviour
     
     void Update()
     {
-        PlayerMovementHandler();
+        PlayerMovementHandlerNormalized();
         PlayerMouseHandler();
         
-       
     }
 
     private void PlayerMouseHandler()
@@ -43,19 +42,23 @@ public class PlayerController : MonoBehaviour
         playerCam.transform.localEulerAngles = camRotationY;
 
     }
-    private void PlayerMovementHandler()
+    private void PlayerMovementHandlerNormalized()
     {
         
 
-        float moveX = Input.GetAxis("Horizontal");
-        float moveY = Input.GetAxis("Vertical");
+        float moveX = Input.GetAxisRaw("Horizontal");
+        float moveY = Input.GetAxisRaw("Vertical");
+
+
 
         moveDir = transform.right * moveX  + transform.forward * moveY;
 
+        moveDir = moveDir.normalized;
         
+
         if(Input.GetKey(KeyCode.LeftShift))
         characterController.Move(moveDir * runSpeed * Time.deltaTime);
-        else
+        
         characterController.Move(moveDir * walkSpeed * Time.deltaTime);
 
     }
