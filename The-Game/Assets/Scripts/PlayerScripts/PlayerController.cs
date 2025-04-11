@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
 
 interface Interactable
 {
@@ -14,26 +15,26 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float walkSpeed = 3f;
     [SerializeField] private float runSpeed = 6f;
     [SerializeField] private float jumpForce = 3f;
-    //[SerializeField] private float dodgeForce = 20f;
     [SerializeField] private float mouseSense = 1000f;
     [SerializeField] private Camera playerCam;
     [SerializeField] private CharacterController characterController;
     [SerializeField] private Transform playerTransform;
     [SerializeField] private LayerMask jumpable;
+    [SerializeField] private GameObject punch;
 
     Vector3 mousePos = new Vector3(0, 0, 0);
     Vector3 moveDir = new Vector3();
-    Vector3 groundedBoxCheck = new Vector3(.1f, .1f,.1f);
+    Vector3 groundedBoxCheck = new Vector3(.5f, .1f,.5f);
     Vector3 velocity;
 
     bool grounded;
     bool isCrouching = false;
-    bool isDodge = false;
-
+    
     float gravity = -9.81f;
     
     void Start()
     {
+        
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -47,7 +48,7 @@ public class PlayerController : MonoBehaviour
         Gravity();
         InteractHandler();
         Hit();
-        //Dodge();       
+              
     }
 
     private void PlayerMouseHandler()
@@ -72,7 +73,7 @@ public class PlayerController : MonoBehaviour
 
         moveDir = moveDir.normalized;
       
-        if(Input.GetKey(KeyCode.LeftShift))
+        if(Input.GetKey(KeyCode.LeftShift)  && !isCrouching)
         characterController.Move(moveDir * runSpeed * Time.deltaTime);
         
         characterController.Move(moveDir * walkSpeed * Time.deltaTime);
@@ -86,6 +87,7 @@ public class PlayerController : MonoBehaviour
             characterController.center = new Vector3(0,.5f,0);
             playerCam.transform.position = playerCam.transform.position - new Vector3(0, 0.5f, 0f);
 
+            walkSpeed -= 1f;
             isCrouching = true;
         }
         else if (Input.GetKeyUp(KeyCode.LeftControl))
@@ -94,6 +96,7 @@ public class PlayerController : MonoBehaviour
             characterController.center = new Vector3(0, 1, 0);
             playerCam.transform.position = playerCam.transform.position - new Vector3(0, -0.5f, 0f);
 
+            walkSpeed += 1f;
             isCrouching = false;
         }   
     }
@@ -105,7 +108,7 @@ public class PlayerController : MonoBehaviour
         else
             grounded = false;
 
-        if (grounded && !isCrouching && !isDodge && Input.GetKeyDown(KeyCode.Space))
+        if (grounded && !isCrouching && Input.GetKeyDown(KeyCode.Space))
         {
             velocity.y = -6f;
             velocity.y += jumpForce * 2;
@@ -140,32 +143,25 @@ public class PlayerController : MonoBehaviour
         }  
     }
 
-    private void Hit()
+    private async void Hit()
     {
-        Ray r = new Ray(playerCam.transform.position, playerCam.transform.forward);
-
-        if (Physics.Raycast(r, out RaycastHit hitInfo, 1.5f))
-            if(hitInfo.collider.gameObject.TryGetComponent(out Hurtable hurtableObj))
-            {
-                if(Input.GetMouseButtonDown(0))
+        
+        
+        
+                if(Input.GetMouseButtonDown(0) && !punch.activeInHierarchy)
                 {
-                    hurtableObj.Hurt();
+                    await Task.Delay(75);
+                    punch.SetActive(true);
+            
+                    if (punch.activeInHierarchy)
+                    {
+                        await Task.Delay(150);
+                        Debug.Log("Puanch");
+                        punch.SetActive(false);
+                    }
                 }
-            }
 
+        
     }
-    //Revisit dodge
-    /*private void Dodge()
-    {
-        if (Input.GetMouseButton(1))
-            isDodge = true;
-        else
-            isDodge = false;
-        
-        if (isDodge && Input.GetKeyDown(KeyCode.Space))
-           
-            characterController.Move(moveDir * dodgeForce * Time.deltaTime);
-        
-
-    }*/
+   
 }

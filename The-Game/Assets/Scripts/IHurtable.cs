@@ -2,15 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-interface Hurtable
+public interface Hurtable
 {
 
     void Hurt();
 
 }
-
-public class HurtableInterface1 : MonoBehaviour
+public class IHurtable : MonoBehaviour
 {
-   
-
+    
 }
